@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AppTypography {
   static TextStyle headlineLarge = const TextStyle(
     fontFamily: 'Sour Gummy',
-    fontSize: 28,
+    fontSize: 30,
     height: 1.1,
     letterSpacing: 0,
   );
@@ -27,7 +27,7 @@ class AppTypography {
     height: 1.25,
     letterSpacing: 0,
   );
-  
+
   static TextStyle titleLarge = const TextStyle(
     fontFamily: 'Nunito SemiBold',
     fontSize: 16,

@@ -10,6 +10,7 @@ class AppThemes {
     colorScheme: ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: AppColors.onPrimary,
+
       surface: AppColors.surface,
       secondary: AppColors.secondary,
     ),
