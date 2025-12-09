@@ -34,11 +34,12 @@ dependencies:
   package_info_plus: ^8.3.0
   flutter_local_notifications: ^19.3.0
   flutter_switch: ^0.3.2
+  dots_indicator: ^4.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-    
+
   flutter_lints: ^5.0.0
 
 
@@ -54,9 +55,6 @@ flutter:
     - family: Nunito Medium
       fonts:
         - asset: assets/fonts/Nunito-Medium.ttf
-    - family: Nunito Bold
-      fonts:
-        - asset: assets/fonts/Nunito-Bold.ttf
     - family: Nunito SemiBold
       fonts:
         - asset: assets/fonts/Nunito-SemiBold.ttf
