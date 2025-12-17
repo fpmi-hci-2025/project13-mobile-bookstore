@@ -17,9 +17,9 @@ class AppInitializer extends StatelessWidget {
       designSize: const Size(375, 812),
       builder: (_, __) {
         return  
-        // MultiBlocProvider(
-        //   providers: appBlocProviders,
-        //   child:
+        MultiBlocProvider(
+          providers: appBlocProviders,
+          child:
            MaterialApp(
             localizationsDelegates: [
               S.delegate,
@@ -32,7 +32,7 @@ class AppInitializer extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             home: SplashPage(),
             onGenerateRoute: AppRoute.generateRoute,
-        //   ),
+           ),
          );
 
       },

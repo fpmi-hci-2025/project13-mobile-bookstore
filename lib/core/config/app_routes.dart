@@ -10,4 +10,5 @@ class AppRoutes {
   static const String favorite = 'favorite';
   static const String order = 'order';
   static const String myLocation = 'my-location';
+  static const String cart = 'cart';
 }

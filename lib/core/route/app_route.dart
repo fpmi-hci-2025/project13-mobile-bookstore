@@ -1,12 +1,13 @@
 import 'package:bookstore/core/config/app_routes.dart';
 import 'package:bookstore/features/auth/presentation/page/auth_page.dart';
+import 'package:bookstore/features/home/cart/cart_page.dart';
 import 'package:bookstore/features/home/navigation/pages/navigation_page.dart';
 import 'package:bookstore/features/home/profile/page/account/presentation/page/my_account_page.dart';
 import 'package:bookstore/features/home/profile/page/favorite/presentation/page/favorite_page.dart';
 import 'package:bookstore/features/home/profile/page/location/presentation/page/my_location_page.dart';
 import 'package:bookstore/features/home/profile/page/order/presentation/page/order_page.dart';
-import 'package:bookstore/features/location/presentation/page/location_page.dart';
-import 'package:bookstore/features/location/presentation/page/select_location_page.dart';
+import 'package:bookstore/features/location/presentation/pages/location/presentation/page/location_page.dart';
+import 'package:bookstore/features/location/presentation/pages/select_location/presentation/page/select_location_page.dart';
 import 'package:bookstore/features/onboarding/presentation/page/onboarding_page.dart';
 import 'package:bookstore/features/registration/presentation/page/registration_page.dart';
 import 'package:bookstore/features/splash/splash_page.dart';
@@ -37,6 +38,8 @@ class AppRoute {
         return route(OrderPage());
       case AppRoutes.myLocation:
         return route(MyLocationPage());
+      case AppRoutes.cart:
+        return route(CartPage());
       default:
         return route(OnboardingPage());
     }
