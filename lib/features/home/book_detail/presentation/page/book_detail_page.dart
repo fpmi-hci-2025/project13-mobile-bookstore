@@ -137,6 +137,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                   }
 
                   return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: [
                         BookDetailContent(book: widget.book, theme: theme),
@@ -166,6 +167,9 @@ class _BookDetailPageState extends State<BookDetailPage> {
                             context.read<BasketBloc>().add(AddToBasket(widget.book));
                           },
                         ),
+                        
+                        // Bottom padding for safe area
+                        SizedBox(height: AppSizes.sizeH34),
                       ],
                     ),
                   );

@@ -65,6 +65,17 @@ class ApiClient {
     return _dio.get('/me');
   }
   
+  Future<Response> updateProfile({String? username, String? email}) async {
+    final data = <String, dynamic>{};
+    if (username != null && username.isNotEmpty) {
+      data['username'] = username;
+    }
+    if (email != null && email.isNotEmpty) {
+      data['email'] = email;
+    }
+    return _dio.put('/me', data: data);
+  }
+  
   // Books
   Future<Response> getBooks({int page = 1, int pageSize = 20}) async {
     return _dio.get('/books', queryParameters: {

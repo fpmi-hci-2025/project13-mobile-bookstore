@@ -58,6 +58,27 @@ class AuthRepository {
     }
   }
 
+  Future<UpdateProfileResult> updateProfile({String? username, String? email}) async {
+    try {
+      final response = await _apiClient.updateProfile(
+        username: username,
+        email: email,
+      );
+      return UpdateProfileResult.success(User.fromJson(response.data));
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        return UpdateProfileResult.error('Username or email already taken');
+      }
+      if (e.response?.statusCode == 400) {
+        final message = e.response?.data['error'] ?? 'Invalid data';
+        return UpdateProfileResult.error(message);
+      }
+      return UpdateProfileResult.error('Connection error. Please try again.');
+    } catch (e) {
+      return UpdateProfileResult.error('Something went wrong. Please try again.');
+    }
+  }
+
   Future<void> logout() async {
     await _apiClient.clearToken();
   }
@@ -84,6 +105,28 @@ class AuthResult {
   );
 
   factory AuthResult.error(String message) => AuthResult._(
+    isSuccess: false,
+    error: message,
+  );
+}
+
+class UpdateProfileResult {
+  final bool isSuccess;
+  final User? user;
+  final String? error;
+
+  UpdateProfileResult._({
+    required this.isSuccess,
+    this.user,
+    this.error,
+  });
+
+  factory UpdateProfileResult.success(User user) => UpdateProfileResult._(
+    isSuccess: true,
+    user: user,
+  );
+
+  factory UpdateProfileResult.error(String message) => UpdateProfileResult._(
     isSuccess: false,
     error: message,
   );
