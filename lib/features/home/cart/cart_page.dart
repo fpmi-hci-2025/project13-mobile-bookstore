@@ -85,8 +85,6 @@ class CartPage extends StatelessWidget {
                           const SizedBox(height: 16),
                           const DateSelectionTile(),
                           const SizedBox(height: 16),
-                          const PaymentComponent(),
-                          const SizedBox(height: 16),
                           // Total
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -277,53 +275,6 @@ class CartItemComponent extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PaymentComponent extends StatelessWidget {
-  const PaymentComponent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.2),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.credit_card,
-            color: AppColors.primary,
-            size: 20,
-          ),
-        ),
-        title: Text(
-          'Choose your payment method',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 17),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
-        onTap: () {
-          // Navigate to payment page
-        },
       ),
     );
   }
