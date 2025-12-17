@@ -1,3 +1,5 @@
+import 'package:bookstore/core/api/order_repository.dart';
+import 'package:bookstore/core/di/di_container.dart';
 import 'package:bookstore/core/models/cart_item.dart';
 import 'package:bookstore/features/home/cart/bloc/baske_bloc.dart';
 import 'package:bookstore/features/home/cart/bloc/basket_event.dart';
@@ -11,8 +13,73 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  final OrderRepository _orderRepository = locator<OrderRepository>();
+  bool _isPlacingOrder = false;
+
+  Future<void> _placeOrder(BuildContext context) async {
+    setState(() {
+      _isPlacingOrder = true;
+    });
+
+    try {
+      final order = await _orderRepository.createOrder('Pickup at store');
+      
+      if (order != null && mounted) {
+        // Clear the cart
+        context.read<BasketBloc>().add(ClearBasket());
+        
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text('Order placed successfully!'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        
+        // Navigate to home
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to place order. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPlacingOrder = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +174,40 @@ class CartPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
+                          // Place Order Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _isPlacingOrder ? null : () => _placeOrder(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 2,
+                              ),
+                              child: _isPlacingOrder
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Place Order - \$${state.total.toStringAsFixed(2)}',
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
                         ],
                       ),
                     );
