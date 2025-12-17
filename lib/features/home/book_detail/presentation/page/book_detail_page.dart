@@ -38,10 +38,18 @@ class BookDetailPage extends StatelessWidget {
               child: BlocBuilder<BasketBloc, BasketState>(
                 builder: (context, state) {
                   int quantity = 0;
+                  String? cartItemId;
 
-                  if (state is BasketLoaded &&
-                      state.items.containsKey(book.title)) {
-                    quantity = state.items[book.title]!.quantity;
+                  if (state is BasketLoaded) {
+                    // Find item by book id
+                    final item = state.items.where(
+                      (item) => item.bookId == book.id || item.book?.title == book.title
+                    ).firstOrNull;
+                    
+                    if (item != null) {
+                      quantity = item.quantity;
+                      cartItemId = item.id;
+                    }
                   }
 
                   return SingleChildScrollView(
@@ -54,23 +62,22 @@ class BookDetailPage extends StatelessWidget {
                           book: book,
                           quantity: quantity,
 
-                          
                           onIncrement: () {
                             context.read<BasketBloc>().add(AddToBasket(book));
                           },
 
                           onDecrement: () {
-                            context.read<BasketBloc>().add(
-                              DecrementBasket(book.title),
-                            );
+                            if (cartItemId != null) {
+                              context.read<BasketBloc>().add(
+                                DecrementBasket(cartItemId),
+                              );
+                            }
                           },
 
-                         
                           onAddToCart: () {
                             Navigator.pushNamed(context, AppRoutes.cart);
                           },
 
-                        
                           onBuy: () {
                             context.read<BasketBloc>().add(AddToBasket(book));
                           },

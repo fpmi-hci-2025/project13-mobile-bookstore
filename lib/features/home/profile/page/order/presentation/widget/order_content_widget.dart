@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 class OrderContentWidget extends StatelessWidget {
   const OrderContentWidget({
     super.key,
-    required this.orderItems,
+    required this.orders,
     required this.theme,
   });
 
-  final List<OrderItem> orderItems;
+  final List<Order> orders;
   final ThemeData theme;
 
   @override
@@ -32,15 +32,13 @@ class OrderContentWidget extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                for (int i = 0; i < orderItems.length; i++) ...[
-                  OrderItemComponent(item: orderItems[i]),
-                  if (i < orderItems.length - 1)
+                for (int i = 0; i < orders.length; i++) ...[
+                  OrderItemComponent(order: orders[i]),
+                  if (i < orders.length - 1)
                     Divider(
                       height: AppSizes.sizeH16,
                       thickness: 1,
-                      color: theme.colorScheme.onSurface.withOpacity(
-                        0.1,
-                      ),
+                      color: theme.colorScheme.onSurface.withOpacity(0.1),
                       indent: 75,
                     ),
                 ],

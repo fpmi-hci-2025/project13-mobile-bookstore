@@ -2,8 +2,10 @@ import 'package:bookstore/core/api/api_client.dart';
 import 'package:bookstore/core/api/auth_repository.dart';
 import 'package:bookstore/core/api/author_repository.dart';
 import 'package:bookstore/core/api/book_repository.dart';
-import 'package:bookstore/core/storage/basket_storage.dart';
-import 'package:bookstore/features/home/cart/domain/cart_repository.dart';
+import 'package:bookstore/core/api/cart_api_repository.dart';
+import 'package:bookstore/core/api/favorite_repository.dart';
+import 'package:bookstore/core/api/order_repository.dart';
+import 'package:bookstore/features/home/cart/bloc/baske_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
@@ -28,12 +30,18 @@ void setupLocator() {
   locator.registerSingleton<AuthorRepository>(
     AuthorRepository(locator<ApiClient>()),
   );
-  
-  // Legacy (for basket)
-  locator.registerSingleton<BasketStorage>(
-    BasketStorage(locator<FlutterSecureStorage>()),
+  locator.registerSingleton<CartApiRepository>(
+    CartApiRepository(locator<ApiClient>()),
   );
-  locator.registerSingleton<CartRepository>(
-    CartRepository(locator<BasketStorage>()),
+  locator.registerSingleton<FavoriteRepository>(
+    FavoriteRepository(locator<ApiClient>()),
+  );
+  locator.registerSingleton<OrderRepository>(
+    OrderRepository(locator<ApiClient>()),
+  );
+  
+  // Blocs
+  locator.registerFactory<BasketBloc>(
+    () => BasketBloc(locator<CartApiRepository>()),
   );
 }
