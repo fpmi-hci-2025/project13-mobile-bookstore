@@ -63,7 +63,7 @@ class Cart {
     final itemsList = json['items'] as List? ?? [];
     return Cart(
       items: itemsList.map((item) => CartItem.fromJson(item)).toList(),
-      total: (json['total'] ?? 0).toDouble(),
+      total: (json['total_price'] ?? json['total'] ?? 0).toDouble(),
     );
   }
 
