@@ -93,7 +93,7 @@ class Order {
       id: json['id']?.toString() ?? '',
       userId: json['user_id']?.toString() ?? '',
       status: OrderStatus.fromString(json['status'] ?? 'pending'),
-      total: (json['total'] ?? 0).toDouble(),
+      total: (json['total_price'] ?? json['total'] ?? 0).toDouble(),
       deliveryAddress: json['delivery_address'],
       items: itemsList.map((item) => OrderItemData.fromJson(item)).toList(),
       createdAt: json['created_at'] != null 
