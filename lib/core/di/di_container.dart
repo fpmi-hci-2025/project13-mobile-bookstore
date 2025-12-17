@@ -1,4 +1,5 @@
 import 'package:bookstore/core/api/api_client.dart';
+import 'package:bookstore/core/api/auth_repository.dart';
 import 'package:bookstore/core/api/author_repository.dart';
 import 'package:bookstore/core/api/book_repository.dart';
 import 'package:bookstore/core/storage/basket_storage.dart';
@@ -18,6 +19,9 @@ void setupLocator() {
   );
   
   // Repositories
+  locator.registerSingleton<AuthRepository>(
+    AuthRepository(locator<ApiClient>()),
+  );
   locator.registerSingleton<BookRepository>(
     BookRepository(locator<ApiClient>()),
   );
