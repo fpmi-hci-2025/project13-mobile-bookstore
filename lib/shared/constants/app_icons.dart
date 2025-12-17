@@ -16,4 +16,5 @@ class AppIcons {
   static const String location = 'assets/icons/location.svg';
   static const String close = 'assets/icons/close.svg';
   static const String detail =  'assets/icons/detail.svg';
+  static const String onLocationFilled = 'assets/icons/onLocationFilled.svg';
 }
