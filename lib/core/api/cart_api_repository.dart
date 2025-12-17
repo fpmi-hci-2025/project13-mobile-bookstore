@@ -28,20 +28,40 @@ class CartApiRepository {
     }
   }
 
+  /// Adds item to cart and returns the updated cart
   Future<Cart?> addToCart(String bookId, {int quantity = 1}) async {
     try {
-      final response = await _apiClient.addToCart(bookId, quantity);
-      return Cart.fromJson(response.data);
+      final isLoggedIn = await _apiClient.isLoggedIn();
+      if (!isLoggedIn) {
+        print('User not logged in, cannot add to cart');
+        return null;
+      }
+      
+      // API returns CartItem, not Cart
+      await _apiClient.addToCart(bookId, quantity);
+      
+      // Reload the full cart after adding
+      return await getCart();
+    } on DioException catch (e) {
+      print('Error adding to cart: ${e.response?.statusCode} - ${e.response?.data}');
+      return null;
     } catch (e) {
       print('Error adding to cart: $e');
       return null;
     }
   }
 
+  /// Updates cart item quantity and returns the updated cart
   Future<Cart?> updateCartItem(String itemId, int quantity) async {
     try {
-      final response = await _apiClient.updateCartItem(itemId, quantity);
-      return Cart.fromJson(response.data);
+      // API returns message, not Cart
+      await _apiClient.updateCartItem(itemId, quantity);
+      
+      // Reload the full cart after updating
+      return await getCart();
+    } on DioException catch (e) {
+      print('Error updating cart item: ${e.response?.statusCode} - ${e.response?.data}');
+      return null;
     } catch (e) {
       print('Error updating cart item: $e');
       return null;
@@ -68,4 +88,3 @@ class CartApiRepository {
     }
   }
 }
-

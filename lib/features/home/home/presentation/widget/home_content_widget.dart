@@ -5,6 +5,7 @@ import 'package:bookstore/core/models/author.dart';
 import 'package:bookstore/core/models/book.dart';
 import 'package:bookstore/features/home/author/presentation/page/author_page.dart';
 import 'package:bookstore/features/home/book_detail/presentation/page/book_detail_page.dart';
+import 'package:bookstore/features/home/cart/bloc/baske_bloc.dart';
 import 'package:bookstore/features/home/home/presentation/components/author_card.dart';
 import 'package:bookstore/features/home/home/presentation/components/book_card.dart';
 import 'package:bookstore/features/home/home/presentation/components/promo_card.dart';
@@ -12,6 +13,7 @@ import 'package:bookstore/features/home/home/presentation/components/section_hea
 import 'package:bookstore/shared/components/app_page_indicator.dart';
 import 'package:bookstore/shared/constants/app_sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomeContentWidget extends StatefulWidget {
@@ -68,11 +70,15 @@ class _HomeContentWidgetState extends State<HomeContentWidget> {
   }
 
   void _openBookDetail(Book book) {
+    final basketBloc = context.read<BasketBloc>();
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => BookDetailPage(book: book),
+      builder: (_) => BlocProvider.value(
+        value: basketBloc,
+        child: BookDetailPage(book: book),
+      ),
     );
   }
 

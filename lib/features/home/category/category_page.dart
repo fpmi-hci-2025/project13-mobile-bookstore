@@ -2,10 +2,12 @@ import 'package:bookstore/core/api/book_repository.dart';
 import 'package:bookstore/core/di/di_container.dart';
 import 'package:bookstore/core/models/book.dart';
 import 'package:bookstore/features/home/book_detail/presentation/page/book_detail_page.dart';
+import 'package:bookstore/features/home/cart/bloc/baske_bloc.dart';
 import 'package:bookstore/features/home/home/presentation/components/book_card.dart';
 import 'package:bookstore/shared/constants/app_sizes.dart';
 import 'package:bookstore/shared/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key});
@@ -95,11 +97,15 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   void _openBookDetail(Book book) {
+    final basketBloc = context.read<BasketBloc>();
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => BookDetailPage(book: book),
+      builder: (_) => BlocProvider.value(
+        value: basketBloc,
+        child: BookDetailPage(book: book),
+      ),
     );
   }
 
