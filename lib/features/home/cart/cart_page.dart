@@ -152,29 +152,7 @@ class _CartPageState extends State<CartPage> {
                           const SizedBox(height: 16),
                           const DateSelectionTile(),
                           const SizedBox(height: 16),
-                          // Total
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 6,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              "Total: \$${state.total.toStringAsFixed(2)}",
-                              style: theme.textTheme.headlineLarge?.copyWith(
-                                fontSize: 22,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
+                          
                           // Place Order Button
                           SizedBox(
                             width: double.infinity,
