@@ -26,7 +26,6 @@ class _MyAccountPageState extends State<MyAccountPage> {
   bool _isSaving = false;
   String? _error;
 
-  // Исходные значения
   String _initialEmail = '';
   String _initialName = '';
 
@@ -36,7 +35,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
     _emailController = TextEditingController();
     _nameController = TextEditingController();
     
-    // Добавляем слушателей для обновления состояния кнопки
+    
     _emailController.addListener(_updateState);
     _nameController.addListener(_updateState);
     
@@ -69,7 +68,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
   }
 
   void _updateState() {
-    setState(() {}); // обновляем UI, чтобы пересчитать isEnabled
+    setState(() {}); 
   }
 
   bool get _isChanged {
