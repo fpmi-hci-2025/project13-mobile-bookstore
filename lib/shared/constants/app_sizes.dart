@@ -117,4 +117,6 @@ class AppSizes {
 
   //static height
   static const double getStartedContainer = 400;
+
+  static double? constSize160;
 }

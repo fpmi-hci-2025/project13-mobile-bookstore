@@ -1,4 +1,6 @@
-import 'package:bookstore/core/models/basket_model.dart';
+import 'package:bookstore/core/api/order_repository.dart';
+import 'package:bookstore/core/di/di_container.dart';
+import 'package:bookstore/core/models/cart_item.dart';
 import 'package:bookstore/features/home/cart/bloc/baske_bloc.dart';
 import 'package:bookstore/features/home/cart/bloc/basket_event.dart';
 import 'package:bookstore/features/home/cart/bloc/basket_state.dart';
@@ -11,8 +13,73 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  final OrderRepository _orderRepository = locator<OrderRepository>();
+  bool _isPlacingOrder = false;
+
+  Future<void> _placeOrder(BuildContext context) async {
+    setState(() {
+      _isPlacingOrder = true;
+    });
+
+    try {
+      final order = await _orderRepository.createOrder('Pickup at store');
+      
+      if (order != null && mounted) {
+        // Clear the cart
+        context.read<BasketBloc>().add(ClearBasket());
+        
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text('Order placed successfully!'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        
+        // Navigate to home
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to place order. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPlacingOrder = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +122,14 @@ class CartPage extends StatelessWidget {
                   if (state is BasketEmpty) {
                     return Column(
                       mainAxisSize: MainAxisSize.min,
-
                       children: [
-                        SizedBox(height: 280),
+                        const SizedBox(height: 280),
                         SvgPicture.asset(
                           AppIcons.buyFill,
                           width: 100,
                           height: 100,
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           "Your basket is empty",
                           style: theme.textTheme.headlineLarge?.copyWith(
@@ -75,49 +141,98 @@ class CartPage extends StatelessWidget {
                   }
 
                   if (state is BasketLoaded) {
-                    final items = state.items.values.toList();
+                    final items = state.items;
 
                     return SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Column(
                         children: [
-                          // Перебираем элементы корзины через for
                           for (var item in items)
                             CartItemComponent(item: item, theme: theme),
                           const SizedBox(height: 16),
-                          DateSelectionTile(),
+                          const DateSelectionTile(),
                           const SizedBox(height: 16),
-                          PaymentComponent(),
-
-                          const SizedBox(height: 16),
-                          // Общая сумма
+                          // Total
                           Container(
                             padding: const EdgeInsets.all(16),
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
                                   color: Colors.black12,
                                   blurRadius: 6,
-                                  offset: const Offset(0, 3),
+                                  offset: Offset(0, 3),
                                 ),
                               ],
                             ),
                             child: Text(
-                              "Total: ${state.total.toStringAsFixed(2)} \$",
+                              "Total: \$${state.total.toStringAsFixed(2)}",
                               style: theme.textTheme.headlineLarge?.copyWith(
                                 fontSize: 22,
                               ),
                             ),
                           ),
-
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
+                          // Place Order Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _isPlacingOrder ? null : () => _placeOrder(context),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 2,
+                              ),
+                              child: _isPlacingOrder
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Place Order - \$${state.total.toStringAsFixed(2)}',
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
                         ],
                       ),
                     );
                   }
+                  
+                  if (state is BasketError) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(state.message),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.read<BasketBloc>().add(LoadBasket());
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  
                   return const SizedBox.shrink();
                 },
               ),
@@ -132,51 +247,58 @@ class CartPage extends StatelessWidget {
 class CartItemComponent extends StatelessWidget {
   const CartItemComponent({super.key, required this.item, required this.theme});
 
-  final BasketModel item;
+  final CartItem item;
   final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
+    final book = item.book;
+    final price = book?.price ?? 0;
+    final title = book?.title ?? 'Unknown';
+    final imageUrl = book?.imageUrl ?? '';
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 6,
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Картинка книги
+          // Book image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: SizedBox(
               width: 60,
               height: 60,
-              child: Image.network(
-                item.book.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.image_not_supported),
-              ),
+              child: imageUrl.isNotEmpty
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          const Icon(Icons.image_not_supported),
+                    )
+                  : const Icon(Icons.book, size: 40),
             ),
           ),
           const SizedBox(width: 12),
 
-          // Название и управление количеством
+          // Title and quantity controls
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.book.title,
+                  title,
                   style: theme.textTheme.bodyLarge,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -185,7 +307,7 @@ class CartItemComponent extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Контрол количества
+                    // Quantity control
                     Container(
                       width: 110,
                       height: 36,
@@ -199,7 +321,7 @@ class CartItemComponent extends StatelessWidget {
                           GestureDetector(
                             onTap: () {
                               context.read<BasketBloc>().add(
-                                DecrementBasket(item.book.title),
+                                DecrementBasket(item.id),
                               );
                             },
                             child: Container(
@@ -223,7 +345,7 @@ class CartItemComponent extends StatelessWidget {
                           GestureDetector(
                             onTap: () {
                               context.read<BasketBloc>().add(
-                                AddToBasket(item.book),
+                                IncrementBasket(item.id),
                               );
                             },
                             child: Container(
@@ -243,9 +365,8 @@ class CartItemComponent extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     Text(
-                      "\$${(item.book.price * item.quantity).toStringAsFixed(2)}",
+                      "\$${(price * item.quantity).toStringAsFixed(2)}",
                       style: theme.textTheme.bodyMedium,
                     ),
                   ],
@@ -254,55 +375,6 @@ class CartItemComponent extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PaymentComponent extends StatelessWidget {
-  const PaymentComponent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.2),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.credit_card, // Иконка карточки
-            color: AppColors.primary,
-            size: 20,
-          ),
-        ),
-        title: Text(
-          'Choose your payment method',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineLarge?.copyWith(fontSize: 17),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
-        onTap: () {
-          // Навигация на страницу оплаты
-        },
       ),
     );
   }
@@ -331,11 +403,11 @@ class _DateSelectionTileState extends State<DateSelectionTile> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 6,
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -356,9 +428,7 @@ class _DateSelectionTileState extends State<DateSelectionTile> {
         ),
         title: Text(
           _displayText,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineLarge?.copyWith(fontSize: 17),
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 17),
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 18),
         onTap: () async {

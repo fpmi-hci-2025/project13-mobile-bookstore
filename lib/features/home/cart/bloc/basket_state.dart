@@ -1,17 +1,19 @@
-import 'package:bookstore/core/models/basket_model.dart';
+import 'package:bookstore/core/models/cart_item.dart';
 
 abstract class BasketState {}
 
 class BasketLoading extends BasketState {}
 
 class BasketLoaded extends BasketState {
-  final Map<String, BasketModel> items;
+  final List<CartItem> items;
   final double total;
 
-  BasketLoaded(this.items)
-      : total = items.values
-            .map((e) => e.book.price * e.quantity)
-            .fold(0, (a, b) => a + b);
+  BasketLoaded({required this.items, required this.total});
 }
 
 class BasketEmpty extends BasketState {}
+
+class BasketError extends BasketState {
+  final String message;
+  BasketError(this.message);
+}

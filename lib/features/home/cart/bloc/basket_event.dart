@@ -10,13 +10,21 @@ class AddToBasket extends BasketEvent {
 }
 
 class RemoveFromBasket extends BasketEvent {
-  final String id; // book.title or uuid
+  final String id; // cart item id
   RemoveFromBasket(this.id);
 }
 
 class ClearBasket extends BasketEvent {}
-class DecrementBasket extends BasketEvent {
-  final String id; // обычно title книги
 
+class DecrementBasket extends BasketEvent {
+  final String id; // cart item id
   DecrementBasket(this.id);
 }
+
+class IncrementBasket extends BasketEvent {
+  final String id; // cart item id
+  IncrementBasket(this.id);
+}
+
+class SyncBasket extends BasketEvent {}
+
